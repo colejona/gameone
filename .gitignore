@@ -4,6 +4,7 @@
 *.log
 /.nyc_output
 /coverage
+/build
 /dist
 /dist-debug
 /artifacts
