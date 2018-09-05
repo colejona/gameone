@@ -1,6 +1,6 @@
 https://github.com/colejona/gameone
 
-[PLAY](http://www.google.com)
+[PLAY](build/index.html)
 
 This game was made with: https://github.com/photonstorm/phaser
 
