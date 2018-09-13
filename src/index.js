@@ -1,10 +1,11 @@
 import 'phaser';
+import {GAME_WIDTH, GAME_HEIGHT} from './constants';
 
-import { BattleScene } from './scenes/battle-scene';
+import {BattleScene} from './scenes/battle-scene';
 
 const gameConfig = {
-    width: 400,
-    height: 680,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
     physics: {
         default: 'arcade',
         arcade: {

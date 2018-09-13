@@ -1,8 +1,11 @@
+import {GAME_WIDTH, FLOOR_HEIGHT, FLOOR_Y, FLOOR_WIDTH, ENEMIES_PER_SCREEN} from '../constants';
+
 export class BattleScene extends Phaser.Scene {
     preload() {
         this.load.image('cokecan', 'assets/cokecan.png');
         this.load.image('floor', 'assets/platform.png');
         this.load.spritesheet('dude', 'assets/dude.png', {frameWidth: 32, frameHeight: 48});
+        this.load.spritesheet('slime', 'assets/green-slime-blink-spritesheet.png', {frameWidth: 12, frameHeight: 10});
     }
 
     create() {
@@ -13,17 +16,31 @@ export class BattleScene extends Phaser.Scene {
         updateDistance(this, 0);
 
         this.floor = this.physics.add.staticGroup();
-        this.floor.create(200, 200, 'floor');
+        this.floor.create(0.5 * FLOOR_WIDTH, FLOOR_Y + 0.5 * FLOOR_HEIGHT, 'floor');
 
         this.endLeft = this.physics.add.staticGroup();
-        this.endLeft.create(-200, 176, 'floor');
+        this.endLeft.create(-1 * 0.5 * FLOOR_WIDTH, FLOOR_Y - 0.5 * FLOOR_HEIGHT, 'floor');
 
         this.endRight = this.physics.add.staticGroup();
-        this.endRight.create(600, 176, 'floor');
+        this.endRight.create(GAME_WIDTH + 0.5 * FLOOR_WIDTH, FLOOR_Y - 0.5 * FLOOR_HEIGHT, 'floor');
 
         setUpPlayer(this);
 
+        // TODO: clean up
+        this.anims.create({
+            key: 'slime-idle',
+            frames: this.anims.generateFrameNumbers('slime', {
+                start: 0,
+                end: 9
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.enemies = this.physics.add.group();
+
         this.physics.add.collider(this.player, this.floor);
+        this.physics.add.collider(this.enemies, this.floor);
         this.physics.add.collider(this.player, this.endLeft, goLeft(this));
         this.physics.add.collider(this.player, this.endRight, goRight(this));
 
@@ -91,7 +108,11 @@ function goLeft(scene) {
         }
         else {
             updateDistance(scene, scene.currentDistance - 1);
-            populateSceneFromRight(scene);
+            clearEnemies(scene);
+            scene.player.setX(384); // TODO: magic number 16
+            if (scene.currentDistance > 0) {
+                populateSceneFromRight(scene);
+            }
         }
     }
 }
@@ -99,16 +120,35 @@ function goLeft(scene) {
 function goRight(scene) {
     return function () {
         updateDistance(scene, scene.currentDistance + 1);
+        clearEnemies(scene);
+        scene.player.setX(16); // TODO: magic number 16
         populateSceneFromLeft(scene);
     }
 }
 
 function populateSceneFromLeft(scene) {
-    scene.player.setX(16);
+    for (let i = 0; i < ENEMIES_PER_SCREEN; i++) {
+        setUpEnemy(scene, GAME_WIDTH * (i + 2) / (ENEMIES_PER_SCREEN + 2), false);
+    }
 }
 
 function populateSceneFromRight(scene) {
-    scene.player.setX(384);
+    for (let i = 0; i < ENEMIES_PER_SCREEN; i++) {
+        setUpEnemy(scene, GAME_WIDTH - GAME_WIDTH * (i + 2) / (ENEMIES_PER_SCREEN + 2), true);
+    }
+}
+
+function clearEnemies(scene) {
+    scene.enemies.clear(true, true);
+}
+
+function setUpEnemy(scene, x, flipX) {
+    let enemy = scene.enemies.create(x, FLOOR_Y - 10, 'slime'); // TODO: fix magic number 10
+    enemy.setScale(2); // TODO: fix magic scaling -- this is only needed for the slime
+    if (flipX) {
+        enemy.flipX = true;
+    }
+    enemy.anims.play('slime-idle', true, Math.floor(Math.random() * 10));
 }
 
 function updateDistance(scene, distance) {
