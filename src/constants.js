@@ -4,5 +4,5 @@ module.exports = {
     FLOOR_HEIGHT: 32,
     FLOOR_Y: 184,
     FLOOR_WIDTH: 400,
-    ENEMIES_PER_SCREEN: 3
+    ENEMIES_PER_SCREEN: 4
 };
