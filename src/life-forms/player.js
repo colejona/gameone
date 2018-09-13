@@ -3,12 +3,12 @@ import {LifeForm} from "./life-form";
 export class Player extends LifeForm {
     constructor(scene) {
         super(scene);
-        this.sprite = scene.physics.add.sprite(50, 160, 'dude');
+        this.sprite = scene.physics.add.sprite(50, 160, 'player');
         this.sprite.setBounce(0.2);
 
         scene.anims.create({
-            key: 'left',
-            frames: scene.anims.generateFrameNumbers('dude', {
+            key: 'player-move-left',
+            frames: scene.anims.generateFrameNumbers('player', {
                 start: 0,
                 end: 3
             }),
@@ -17,10 +17,10 @@ export class Player extends LifeForm {
         });
 
         scene.anims.create({
-            key: 'turn',
+            key: 'player-idle',
             frames: [
                 {
-                    key: 'dude',
+                    key: 'player',
                     frame: 4
                 }
             ],
@@ -28,8 +28,8 @@ export class Player extends LifeForm {
         });
 
         scene.anims.create({
-            key: 'right',
-            frames: scene.anims.generateFrameNumbers('dude', {
+            key: 'player-move-right',
+            frames: scene.anims.generateFrameNumbers('player', {
                 start: 5,
                 end: 8
             }),
@@ -40,16 +40,16 @@ export class Player extends LifeForm {
 
     moveLeft() {
         this.sprite.setVelocityX(-160);
-        this.sprite.anims.play('left', true);
+        this.sprite.anims.play('player-move-left', true);
     }
 
     moveRight() {
         this.sprite.setVelocityX(160);
-        this.sprite.anims.play('right', true);
+        this.sprite.anims.play('player-move-right', true);
     }
 
     stop() {
         this.sprite.setVelocityX(0);
-        this.sprite.anims.play('turn');
+        this.sprite.anims.play('player-idle');
     }
 }

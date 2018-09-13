@@ -5,7 +5,7 @@ export class BattleScene extends Phaser.Scene {
     preload() {
         this.load.image('cokecan', 'assets/cokecan.png');
         this.load.image('floor', 'assets/platform.png');
-        this.load.spritesheet('dude', 'assets/dude.png', {frameWidth: 32, frameHeight: 48});
+        this.load.spritesheet('player', 'assets/dude.png', {frameWidth: 32, frameHeight: 48});
         this.load.spritesheet('slime', 'assets/green-slime-blink-spritesheet.png', {frameWidth: 12, frameHeight: 10});
     }
 
@@ -28,15 +28,17 @@ export class BattleScene extends Phaser.Scene {
         this.player = new Player(this);
 
         // TODO: clean up
-        this.anims.create({
-            key: 'slime-idle',
-            frames: this.anims.generateFrameNumbers('slime', {
-                start: 0,
-                end: 9
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
+        if (!this.anims.anims.entries['slime-idle']) {
+            this.anims.create({
+                key: 'slime-idle',
+                frames: this.anims.generateFrameNumbers('slime', {
+                    start: 0,
+                    end: 9
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+        }
 
         this.enemies = this.physics.add.group();
 
