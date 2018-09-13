@@ -41,28 +41,32 @@ export class BattleScene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, this.floor);
         this.physics.add.collider(this.enemies, this.floor);
-        this.physics.add.collider(this.player, this.endLeft, goLeft(this));
-        this.physics.add.collider(this.player, this.endRight, goRight(this));
+        this.physics.add.collider(this.player, this.endLeft, goLeftAScreen(this));
+        this.physics.add.collider(this.player, this.endRight, goRightAScreen(this));
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update() {
-        let cursors = this.cursors;
-        let player = this.player;
-        if (cursors.left.isDown) {
-            player.setVelocityX(-160);
-            player.anims.play('left', true);
-        }
-        else if (cursors.right.isDown) {
-            player.setVelocityX(160);
-            player.anims.play('right', true);
-        }
-        else {
-            player.setVelocityX(0);
-            player.anims.play('turn');
+        if (this.player.body.touching.down && this.cursors.left.isDown || (this.input.activePointer.isDown && this.input.activePointer.downX < GAME_WIDTH / 2)) {
+            movePlayerLeft(this.player);
+        } else if (this.player.body.touching.down && this.cursors.right.isDown || (this.input.activePointer.isDown && this.input.activePointer.downX >= GAME_WIDTH / 2)) {
+            movePlayerRight(this.player);
+        } else {
+            this.player.setVelocityX(0);
+            this.player.anims.play('turn');
         }
     }
+}
+
+function movePlayerLeft(player) {
+    player.setVelocityX(-160);
+    player.anims.play('left', true);
+}
+
+function movePlayerRight(player) {
+    player.setVelocityX(160);
+    player.anims.play('right', true);
 }
 
 function setUpPlayer(scene) {
@@ -101,7 +105,7 @@ function setUpPlayer(scene) {
     });
 }
 
-function goLeft(scene) {
+function goLeftAScreen(scene) {
     return function () {
         if (scene.currentDistance === 0) {
             // TODO: go to town
@@ -117,7 +121,7 @@ function goLeft(scene) {
     }
 }
 
-function goRight(scene) {
+function goRightAScreen(scene) {
     return function () {
         updateDistance(scene, scene.currentDistance + 1);
         clearEnemies(scene);
