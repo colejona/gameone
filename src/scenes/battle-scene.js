@@ -1,4 +1,5 @@
 import {GAME_WIDTH, FLOOR_HEIGHT, FLOOR_Y, FLOOR_WIDTH, ENEMIES_PER_SCREEN} from '../constants';
+import {Player} from "../life-forms/player";
 
 export class BattleScene extends Phaser.Scene {
     preload() {
@@ -24,7 +25,7 @@ export class BattleScene extends Phaser.Scene {
         this.endRight = this.physics.add.staticGroup();
         this.endRight.create(GAME_WIDTH + 0.5 * FLOOR_WIDTH, FLOOR_Y - 0.5 * FLOOR_HEIGHT, 'floor');
 
-        setUpPlayer(this);
+        this.player = new Player(this);
 
         // TODO: clean up
         this.anims.create({
@@ -39,70 +40,23 @@ export class BattleScene extends Phaser.Scene {
 
         this.enemies = this.physics.add.group();
 
-        this.physics.add.collider(this.player, this.floor);
+        this.physics.add.collider(this.player.sprite, this.floor);
         this.physics.add.collider(this.enemies, this.floor);
-        this.physics.add.collider(this.player, this.endLeft, goLeftAScreen(this));
-        this.physics.add.collider(this.player, this.endRight, goRightAScreen(this));
+        this.physics.add.collider(this.player.sprite, this.endLeft, goLeftAScreen(this));
+        this.physics.add.collider(this.player.sprite, this.endRight, goRightAScreen(this));
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update() {
-        if (this.player.body.touching.down && this.cursors.left.isDown || (this.input.activePointer.isDown && this.input.activePointer.downX < GAME_WIDTH / 2)) {
-            movePlayerLeft(this.player);
-        } else if (this.player.body.touching.down && this.cursors.right.isDown || (this.input.activePointer.isDown && this.input.activePointer.downX >= GAME_WIDTH / 2)) {
-            movePlayerRight(this.player);
+        if (this.player.sprite.body.touching.down && this.cursors.left.isDown || (this.input.activePointer.isDown && this.input.activePointer.downX < GAME_WIDTH / 2)) {
+            this.player.moveLeft();
+        } else if (this.player.sprite.body.touching.down && this.cursors.right.isDown || (this.input.activePointer.isDown && this.input.activePointer.downX >= GAME_WIDTH / 2)) {
+            this.player.moveRight();
         } else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
+            this.player.stop();
         }
     }
-}
-
-function movePlayerLeft(player) {
-    player.setVelocityX(-160);
-    player.anims.play('left', true);
-}
-
-function movePlayerRight(player) {
-    player.setVelocityX(160);
-    player.anims.play('right', true);
-}
-
-function setUpPlayer(scene) {
-    scene.player = scene.physics.add.sprite(50, 160, 'dude');
-    scene.player.setBounce(0.2);
-
-    scene.anims.create({
-        key: 'left',
-        frames: scene.anims.generateFrameNumbers('dude', {
-            start: 0,
-            end: 3
-        }),
-        frameRate: 10,
-        repeat: -1
-    });
-
-    scene.anims.create({
-        key: 'turn',
-        frames: [
-            {
-                key: 'dude',
-                frame: 4
-            }
-        ],
-        frameRate: 20
-    });
-
-    scene.anims.create({
-        key: 'right',
-        frames: scene.anims.generateFrameNumbers('dude', {
-            start: 5,
-            end: 8
-        }),
-        frameRate: 10,
-        repeat: -1
-    });
 }
 
 function goLeftAScreen(scene) {
@@ -113,7 +67,7 @@ function goLeftAScreen(scene) {
         else {
             updateDistance(scene, scene.currentDistance - 1);
             clearEnemies(scene);
-            scene.player.setX(384); // TODO: magic number 16
+            scene.player.sprite.setX(384); // TODO: magic number 16
             if (scene.currentDistance > 0) {
                 populateSceneFromRight(scene);
             }
@@ -125,7 +79,7 @@ function goRightAScreen(scene) {
     return function () {
         updateDistance(scene, scene.currentDistance + 1);
         clearEnemies(scene);
-        scene.player.setX(16); // TODO: magic number 16
+        scene.player.sprite.setX(16); // TODO: magic number 16
         populateSceneFromLeft(scene);
     }
 }
