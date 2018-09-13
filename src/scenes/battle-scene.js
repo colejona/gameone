@@ -1,5 +1,6 @@
 import {GAME_WIDTH, FLOOR_HEIGHT, FLOOR_Y, FLOOR_WIDTH, ENEMIES_PER_SCREEN} from '../constants';
 import {Player} from "../life-forms/player";
+import {Enemy} from "../life-forms/enemy";
 
 export class BattleScene extends Phaser.Scene {
     preload() {
@@ -26,19 +27,6 @@ export class BattleScene extends Phaser.Scene {
         this.endRight.create(GAME_WIDTH + 0.5 * FLOOR_WIDTH, FLOOR_Y - 0.5 * FLOOR_HEIGHT, 'floor');
 
         this.player = new Player(this);
-
-        // TODO: clean up
-        if (!this.anims.anims.entries['slime-idle']) {
-            this.anims.create({
-                key: 'slime-idle',
-                frames: this.anims.generateFrameNumbers('slime', {
-                    start: 0,
-                    end: 9
-                }),
-                frameRate: 10,
-                repeat: -1
-            });
-        }
 
         this.enemies = this.physics.add.group();
 
@@ -88,27 +76,18 @@ function goRightAScreen(scene) {
 
 function populateSceneFromLeft(scene) {
     for (let i = 0; i < ENEMIES_PER_SCREEN; i++) {
-        setUpEnemy(scene, GAME_WIDTH * (i + 2) / (ENEMIES_PER_SCREEN + 2), false);
+        new Enemy(scene.enemies, GAME_WIDTH * (i + 2) / (ENEMIES_PER_SCREEN + 2), false);
     }
 }
 
 function populateSceneFromRight(scene) {
     for (let i = 0; i < ENEMIES_PER_SCREEN; i++) {
-        setUpEnemy(scene, GAME_WIDTH - GAME_WIDTH * (i + 2) / (ENEMIES_PER_SCREEN + 2), true);
+        new Enemy(scene.enemies, GAME_WIDTH - GAME_WIDTH * (i + 2) / (ENEMIES_PER_SCREEN + 2), true);
     }
 }
 
 function clearEnemies(scene) {
     scene.enemies.clear(true, true);
-}
-
-function setUpEnemy(scene, x, flipX) {
-    let enemy = scene.enemies.create(x, FLOOR_Y - 10, 'slime'); // TODO: fix magic number 10
-    enemy.setScale(2); // TODO: fix magic scaling -- this is only needed for the slime
-    if (flipX) {
-        enemy.flipX = true;
-    }
-    enemy.anims.play('slime-idle', true, Math.floor(Math.random() * 10));
 }
 
 function updateDistance(scene, distance) {
