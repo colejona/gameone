@@ -6,6 +6,10 @@
   "author": "joco",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "dev": "yarn run webpack-dev-server",
+    "build": "yarn run webpack"
+  },
   "devDependencies": {
     "babel-core": "6",
     "babel-loader": "^7.0.0",
